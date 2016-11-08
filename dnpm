@@ -47,12 +47,12 @@ Usage: ${SCRIPTNAME} [-c|--command <shell command>] [-i|--image <docker image>] 
 
   -c|--command : add the specified command to the list of commands to be executed by sh (current: $(printf '[%s]' "${COMMANDS[@]}"))
   -d|--homedir : consider the specified directory as the user home in the container (current: ${HOMEDIR})
-  -h|--help    : displays this help page with current settings
+  -h|--help    : display this help page with current settings
   -i|--image   : use the specified image to run the docker container (current: ${IMAGE})
   -p|--package : execute the commands within the specified package (mandatory, current: ${PACKAGE:-<undefined>})
-  -s|--ssh     : specifies the volume containing the ssh-agent auth socket (current: ${SSHVOLUME:<undefined>})
+  -s|--ssh     : specify the volume containing the ssh-agent auth socket (current: ${SSHVOLUME:<undefined>})
 
-See https://github.com/whilp/ssh-agent for details about providing an ssh-agent container
+See https://github.com/whilp/ssh-agent for details about providing an ssh-agent container.
 EOT
       exit 0
       ;;
