@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+
+SCRIPTNAME="$(basename "${BASH_SOURCE[0]}")"
+
+IMAGE="mhart/alpine-node"
+HOMEDIR="/root"
+COMMANDS=()
+
+checkarg() {
+  if [ $# -lt 2 ]; then
+    echo "missing argument for option $1" >2
+    echo "use ${SCRIPTNAME} -h to get help"
+    exit 1
+  fi
+}
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -c|--command)
+      checkarg $1 $2
+      COMMANDS+=("$2")
+      shift
+      ;;
+    -d|--homedir)
+      checkarg $1 $2
+      HOMEDIR="$2"
+      shift
+      ;;
+    -i|--image)
+      checkarg $1 $2
+      IMAGE="$2"
+      shift
+      ;;
+    -p|--package)
+      checkarg $1 $2
+      PACKAGE="$(cd "$2" && pwd)"
+      shift
+      ;;
+    -s|--ssh)
+      checkarg $1 $2
+      SSHVOLUME="$2"
+      shift
+      ;;
+    -h|--help)
+      cat <<-EOT
+Usage: ${SCRIPTNAME} [-c|--command <shell command>] [-i|--image <docker image>] [-p|--package <package path>] [-s|--ssh <volume>]
+
+  -c|--command : add the specified command to the list of commands to be executed by sh (current: $(printf '[%s]' "${COMMANDS[@]}"))
+  -d|--homedir : consider the specified directory as the user home in the container (current: ${HOMEDIR})
+  -h|--help    : displays this help page with current settings
+  -i|--image   : use the specified image to run the docker container (current: ${IMAGE})
+  -p|--package : execute the commands within the specified package (mandatory, current: ${PACKAGE:-<undefined>})
+  -s|--ssh     : specifies the volume containing the ssh-agent auth socket (current: ${SSHVOLUME:<undefined>})
+
+See https://github.com/whilp/ssh-agent for details about providing an ssh-agent container
+EOT
+      exit 0
+      ;;
+    *)
+      echo "unknown argument: $1"
+      echo "use ${SCRIPTNAME} -h to get help"
+      exit 1
+      ;;
+  esac
+  shift
+done
+
+if [ -z "${PACKAGE}" ]; then
+  echo "package option is mandatory"
+  echo "use ${SCRIPTNAME} -h to get help"
+  exit 1
+fi
+
+docker run --rm \
+  -v "${HOME}:${HOMEDIR}:ro" \
+  -v "${PACKAGE}:/package" \
+  ${SSHVOLUME:+-v "${SSHVOLUME}:/ssh" -e SSH_AUTH_SOCK=/ssh/auth/sock} \
+  -e XDG_CONFIG_HOME=/tmp/xdg-config \
+  -e bower_storage__packages=/tmp/bower-packages \
+  -e bower_storage__registry=/tmp/bower-registry \
+  -e bower_storage__links=/tmp/bower-links \
+  -e bower_allow_root=true \
+  -e npm_config_cache=/tmp/npm-cache \
+  ${npm_config_registry:+-e npm_config_registry="${npm_config_registry}"} \
+  ${npm_config_userconfig:+-e npm_config_userconfig="${npm_config_userconfig}"} \
+  ${npm_config_save_default:+-e npm_config_save_default="${npm_config_save_default}"} \
+  "${IMAGE}" sh -c "cd /package $(printf '&& %s' "${COMMANDS[@]}")"
