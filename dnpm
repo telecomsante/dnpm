@@ -3,25 +3,20 @@
 SCRIPTNAME="$(basename "${BASH_SOURCE[0]}")"
 
 IMAGE="mhart/alpine-node"
+ENTRYPOINT="sh"
 HOMEDIR="/root"
-COMMANDS=()
 
 checkarg() {
   if [ $# -lt 2 ]; then
-    echo "missing argument for option $1" >2
-    echo "use ${SCRIPTNAME} -h to get help"
+    echo "missing argument for option $1" >&2
+    echo "use \"${SCRIPTNAME} --help\" to get help"
     exit 1
   fi
 }
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    -c|--command)
-      checkarg $1 $2
-      COMMANDS+=("$2")
-      shift
-      ;;
-    -d|--homedir)
+    -h|--home)
       checkarg $1 $2
       HOMEDIR="$2"
       shift
@@ -31,49 +26,86 @@ while [ $# -gt 0 ]; do
       IMAGE="$2"
       shift
       ;;
-    -p|--package)
-      checkarg $1 $2
-      PACKAGE="$(cd "$2" && pwd)"
-      shift
-      ;;
     -s|--ssh)
       checkarg $1 $2
       SSHVOLUME="$2"
       shift
       ;;
-    -h|--help)
+    -w|--workdir)
+      checkarg $1 $2
+      WORKDIR="$(cd "$2" && pwd)"
+      shift
+      ;;
+    --help)
       cat <<-EOT
-Usage: ${SCRIPTNAME} [-c|--command <shell command>] [-i|--image <docker image>] [-p|--package <package path>] [-s|--ssh <volume>]
+Usage: ${SCRIPTNAME} [OPTION...] [--] ARG...
 
-  -c|--command : add the specified command to the list of commands to be executed by sh (current: $(printf '[%s]' "${COMMANDS[@]}"))
-  -d|--homedir : consider the specified directory as the user home in the container (current: ${HOMEDIR})
-  -h|--help    : display this help page with current settings
-  -i|--image   : use the specified image to run the docker container (current: ${IMAGE})
-  -p|--package : execute the commands within the specified package (mandatory, current: ${PACKAGE:-<undefined>})
-  -s|--ssh     : specify the volume containing the ssh-agent auth socket (current: ${SSHVOLUME:-<undefined>})
+Arguments are all passed as commands to a posix bourne shell.
+
+Valid options:
+  -h|--home <path>       : path to mount the user's home directory in the container (current: ${HOMEDIR})
+  -i|--image <image>     : image to create the docker container (current: ${IMAGE})
+  -s|--ssh <volname>     : volume name containing the ssh-agent auth socket (current: ${SSHVOLUME:-<undefined>})
+  -w|--workdir <path>    : path to be mounted as the container working directory (mandatory, current: ${PACKAGE:-<undefined>})
+  --help                 : display this help page with current settings
+
+WARNING: The image is executed in a privileged container, _understand_ its Dockerfile before using it.
 
 See https://github.com/whilp/ssh-agent for details about providing an ssh-agent container.
+
+Image prerequisite: user with administration rights (mount and so on)
 EOT
       exit 0
       ;;
+    --)
+      shift
+      break
+      ;;
     *)
-      echo "unknown argument: $1"
-      echo "use ${SCRIPTNAME} -h to get help"
-      exit 1
+      break
       ;;
   esac
   shift
 done
 
-if [ -z "${PACKAGE}" ]; then
-  echo "package option is mandatory"
-  echo "use ${SCRIPTNAME} -h to get help"
+if [ -z "${WORKDIR}" ]; then
+  echo "workdir option is mandatory"
+  echo "use ${SCRIPTNAME} --help to get help"
   exit 1
 fi
 
-docker run --rm \
+function clean() {
+  rm -f "${ENTRYPOINT}"
+}
+ENTRYPOINT="$(mktemp)"
+trap clean EXIT
+chmod u+x "${ENTRYPOINT}"
+
+cat > "${ENTRYPOINT}" <<EOS
+#!/usr/bin/env sh
+
+# ensure the ssh credentials are owned by the current user
+if [ -d "\${HOME}/.ssh" ]; then
+  SSH="\$(mktemp -d)"
+  cp -R "\${HOME}/.ssh" "\${SSH}"
+  chown -R "\$(whoami):" "\${SSH}/.ssh"
+  mount -o bind "\${SSH}/.ssh" "\${HOME}/.ssh"
+fi
+
+cd /work
+while [ \$# -gt 0 ]; do
+  eval "\$1"
+  shift
+done
+
+# ensure owner/group is consistent across /work directory
+chown -R "\$(stat -c "%u:%g" /work)" /work
+EOS
+
+docker run --rm --privileged \
   -v "${HOME}:${HOMEDIR}:ro" \
-  -v "${PACKAGE}:/package" \
+  -v "${WORKDIR}:/work" \
+  -v "${ENTRYPOINT}:/entrypoint" \
   ${SSHVOLUME:+-v "${SSHVOLUME}:/ssh" -e SSH_AUTH_SOCK=/ssh/auth/sock} \
   -e XDG_CONFIG_HOME=/tmp/xdg-config \
   -e XDG_DATA_HOME=/tmp/xdg-data \
@@ -85,4 +117,6 @@ docker run --rm \
   ${npm_config_registry:+-e npm_config_registry="${npm_config_registry}"} \
   ${npm_config_userconfig:+-e npm_config_userconfig="${npm_config_userconfig}"} \
   ${npm_config_save_default:+-e npm_config_save_default="${npm_config_save_default}"} \
-  "${IMAGE}" sh -c "cd /package $(printf '&& %s' "${COMMANDS[@]}")"
+  --workdir /work \
+  --entrypoint "/entrypoint" \
+  "${IMAGE}" "$@"

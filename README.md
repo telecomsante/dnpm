@@ -19,13 +19,13 @@ curl -L -O https://raw.githubusercontent.com/telecomsante/dnpm/master/dnpm
 `dnpm` can mainly be used to operate [npm][1] installs:
 
 ```bash
-dnpm -p path/to/a/node/project -c "npm install"
+dnpm -w path/to/a/node/project "npm install"
 ```
 
 For more complex situations involving bower and private git repositories, you might want to do things like:
 
 ```bash
-dnpm -p path/to/a/node/project -c "apk add -U git openssh" -c "npm install --unsafe-perm"
+dnpm -w path/to/a/node/project "apk add --no-cache git openssh" "npm install --unsafe-perm"
 ```
 
 > `--unsafe-perm` was passed as an argument to [npm][1] as the default [docker][2] image used by `dnpm` is [mhart/alpine-node][4].
@@ -43,7 +43,7 @@ docker run --rm -v ssh:/ssh -v $HOME:$HOME -it whilp/ssh-agent:latest ssh-add $H
 Then simply use the `-s` option of `dnpm` to take into account the `ssh-agent`:
 
 ```bash
-dnpm -p path/to/a/node/project -s ssh -c "npm install"
+dnpm -w path/to/a/node/project -s ssh "npm install"
 ```
 
 Where `ssh` (the `-s` argument) is the [docker][2] volume used by the [SSH agent container][3].
@@ -53,7 +53,7 @@ Where `ssh` (the `-s` argument) is the [docker][2] volume used by the [SSH agent
 `dnpm` provides its own help page:
 
 ```bash
-dnpm -h
+dnpm --help
 ```
 
 [1]: https://www.npmjs.com/
