@@ -14,6 +14,14 @@ curl -L -O https://raw.githubusercontent.com/telecomsante/dnpm/master/dnpm
 > curl -L -O https://raw.githubusercontent.com/telecomsante/dnpm/TAG/dnpm
 > ```
 
+## Help
+
+`dnpm` provides its own help page:
+
+```bash
+dnpm --help
+```
+
 ## Usage
 
 `dnpm` can mainly be used to operate [npm][1] installs:
@@ -48,15 +56,28 @@ dnpm -w path/to/a/node/project -s ssh "npm install"
 
 Where `ssh` (the `-s` argument) is the [docker][2] volume used by the [SSH agent container][3].
 
-## Help
+## When [node-gyp][5] is needed
 
-`dnpm` provides its own help page:
+There seems to be no way to instruct [node-gyp][5] to change its `devdir` through an [npm][1] option or an environment variable (`--nodedir` is not an option as it also impacts the way [npm][1] reaches `node`).
+
+In order to work around this limitation `dnpm` binds temporarily `~/.node-gyp` to a temporary folder in the container.
+This means that `dnpm` also ensures that the `~/.node-gyp` folder exists.
+This is for now the only modification that `dnpm` might operate on the user account.
+
+[node-gyp][5] will probably need additional tools like `python` and other build tools, so for the default image ([alpine-node][4]):
 
 ```bash
-dnpm --help
+dnpm -w path/to/a/node/project "apk add --no-cache build-base python" "npm install"
+```
+
+If you think installing all these tools takes to much time, you can use your own build image but do not forget that it has to be close to your deployment image (same operating system revision for instance):
+
+```bash
+dnpm -w path/to/a/node/project -i custom_image_name "npm install"
 ```
 
 [1]: https://www.npmjs.com/
 [2]: https://www.docker.com/
 [3]: https://github.com/whilp/ssh-agent
 [4]: https://hub.docker.com/r/mhart/alpine-node/
+[5]: https://github.com/nodejs/node-gyp

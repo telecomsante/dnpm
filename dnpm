@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -o errexit
 
 SCRIPTNAME="$(basename "${BASH_SOURCE[0]}")"
 
@@ -81,6 +82,10 @@ ENTRYPOINT="$(mktemp)"
 trap clean EXIT
 chmod u+x "${ENTRYPOINT}"
 
+# node-gyp does not provide a way to change its cache directory through npm
+# so the workaround for now is to use a temporary mount and ensure the mount point is available
+mkdir -p "${HOME}/.node-gyp"
+
 cat > "${ENTRYPOINT}" <<EOS
 #!/usr/bin/env sh
 
@@ -90,6 +95,11 @@ if [ -d "\${HOME}/.ssh" ]; then
   cp -R "\${HOME}/.ssh" "\${SSH}"
   chown -R "\$(whoami):" "\${SSH}/.ssh"
   mount -o bind "\${SSH}/.ssh" "\${HOME}/.ssh"
+fi
+
+if [ -d "\${HOME}/.node-gyp" ]; then
+  GYP="\$(mktemp -d)"
+  mount -o bind "\${GYP}" "\${HOME}/.node-gyp"
 fi
 
 cd /work
