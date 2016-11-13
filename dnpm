@@ -75,7 +75,19 @@ if [ -z "${WORKDIR}" ]; then
   exit 1
 fi
 
-function clean() {
+# realpath is not always available
+realpath() {
+ local rpath="$(cd -P -- "$(dirname -- "$1")" && pwd -P)/$(basename -- "$1")"
+
+ while [[ -h "${rapth}" ]]; do
+   local link=$(readlink "${rpath}")
+   rpath=$(cd "$(dirname -- "${rpath}")" && cd "$(dirname -- "${link}")" && pwd)/$(basename -- "${link}")
+ done
+
+ echo "${rpath}"
+}
+
+clean() {
   rm -f "${ENTRYPOINT}"
 }
 ENTRYPOINT="$(mktemp)"
@@ -113,9 +125,9 @@ chown -R "\$(stat -c "%u:%g" /work)" /work
 EOS
 
 docker run --rm --privileged \
-  -v "${HOME}:${HOMEDIR}:ro" \
-  -v "${WORKDIR}:/work" \
-  -v "${ENTRYPOINT}:/entrypoint" \
+  -v "$(realpath "${HOME}"):${HOMEDIR}:ro" \
+  -v "$(realpath "${WORKDIR}"):/work" \
+  -v "$(realpath "${ENTRYPOINT}"):/entrypoint" \
   ${SSHVOLUME:+-v "${SSHVOLUME}:/ssh" -e SSH_AUTH_SOCK=/ssh/auth/sock} \
   $(env | grep -i "^npm_config_" | awk -F'=' '{ printf "-e " $1 "=\"" $2 "\" " }') \
   -e XDG_CONFIG_HOME=/tmp/xdg-config \
