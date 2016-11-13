@@ -70,11 +70,15 @@ This is for now the only modification that `dnpm` might operate on the user acco
 dnpm -w path/to/a/node/project "apk add --no-cache build-base python" "npm install"
 ```
 
-If you think installing all these tools takes to much time, you can use your own build image but do not forget that it has to be close to your deployment image (same operating system revision for instance):
+If you think installing all these tools takes too much time, you can use your own build image but do not forget that it has to be close to your deployment image (same operating system revision for instance):
 
 ```bash
 dnpm -w path/to/a/node/project -i custom_image_name "npm install"
 ```
+
+> The alternate image must host a user having administration rights.
+>
+> Also note that operating with a user other than root almost certainly means that its home directory will not be `/root` and that you will have to use the `-h` option.
 
 [1]: https://www.npmjs.com/
 [2]: https://www.docker.com/
