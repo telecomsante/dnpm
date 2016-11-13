@@ -58,7 +58,7 @@ Where `ssh` (the `-s` argument) is the [docker][2] volume used by the [SSH agent
 
 ## When [node-gyp][5] is needed
 
-There seems to be no way to instruct [node-gyp][5] to change its `devdir` through an [npm][1] option or an environment variable (`--nodedir` is not an option as it also impacts the way [npm][1] reaches `node`).
+There seems to be no way to instruct [node-gyp][5] to change its `devdir` through an [npm][1] option or an environment variable ([`--nodedir`][7] is not an option as it also impacts the way [npm][1] reaches `node`).
 
 In order to work around this limitation `dnpm` binds temporarily `~/.node-gyp` to a temporary folder in the container.
 This means that `dnpm` also ensures that the `~/.node-gyp` folder exists.
@@ -88,3 +88,4 @@ dnpm -w path/to/a/node/project -i custom_image_name "npm install"
 [4]: https://hub.docker.com/r/mhart/alpine-node/
 [5]: https://github.com/nodejs/node-gyp
 [6]: https://hub.docker.com/r/erdii/nodejs-alpine-buildtools/
+[7]: https://github.com/nodejs/node-gyp/issues/21#issuecomment-180048770
