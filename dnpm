@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -o errexit
 
-SCRIPTNAME="$(basename "${BASH_SOURCE[0]}")"
+SCRIPTNAME="$(basename -- "${BASH_SOURCE[0]}")"
 
 IMAGE="mhart/alpine-node"
 ENTRYPOINT="sh"
