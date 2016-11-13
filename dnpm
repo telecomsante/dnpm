@@ -83,7 +83,7 @@ trap clean EXIT
 chmod u+x "${ENTRYPOINT}"
 
 # node-gyp does not provide a way to change its cache directory through npm
-# so the workaround for now is to use a temporary mount and ensure the mount point is available
+# so the workaround for now is to use a bind mount and ensure the mount point is available
 mkdir -p "${HOME}/.node-gyp"
 
 cat > "${ENTRYPOINT}" <<EOS
