@@ -2,7 +2,10 @@
 
 A simple bash script to ease [npm][1] usage through [docker][2].
 
-The main point of `dnpm` is to ensure that your configuration and credentials are available within the build container.
+`dnpm` is mainly of use when needing to operate preliminary [npm][1] tasks before building a [docker][2] image. This is in particular necessary when you do not want to pollute the image to build with the building environment (for instance with credentials necessary to get dependencies from private repositories).
+An alternative is to directly operate these tasks in the [Dockerfile][10] but this also means ensuring that nothing remains from the building environment which can sometimes be a harsh task.
+
+So the main point of `dnpm` is to ensure that your configuration and credentials are available within this preliminary build container.
 This is provided by **read-only** mounting the host user home directory and ensuring that part of the host user environment is also available within the container.
 
 The only host volume that is not mounted read-only is the `workdir` which is the current project directory (the one with the `package.json` file) and hence should be protected by a versioning system like [git][8].
@@ -99,3 +102,4 @@ dnpm -w path/to/a/node/project -i custom_image_name "npm install"
 [7]: https://github.com/nodejs/node-gyp/issues/21#issuecomment-180048770
 [8]: https://git-scm.com/
 [9]: https://nodejs.org/
+[10]: https://docs.docker.com/engine/reference/builder/
