@@ -2,10 +2,13 @@
 
 A simple bash script to ease [npm][1] usage through [docker][2].
 
-The main point of `dnpm` is that it ensures that your configuration and credentials are available within the build container.
-This is provided by **read-only** mounting the host user home directory and ensuring that part of the user environment is also passed within the container.
+The main point of `dnpm` is to ensure that your configuration and credentials are available within the build container.
+This is provided by **read-only** mounting the host user home directory and ensuring that part of the host user environment is also available within the container.
 
 The only host volume that is not mounted read-only is the `workdir` which is the current project directory (the one with the `package.json` file) and hence should be protected by a versioning system like [git][8].
+
+The default image used by the `dnpm` container is [mhart/alpine-node][4].
+This can be easily changed by using the `-i` option.
 
 ## Installation
 
