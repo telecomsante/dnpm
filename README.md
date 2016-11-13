@@ -41,7 +41,7 @@ dnpm -w path/to/a/node/project "apk add --no-cache git openssh" "npm install --u
 
 ## Password protected SSH keys
 
-If your npm commands involve using an SSH key protected by a password, you can start an [SSH agent container][3] and add your SSH key this way:
+If your commands involve using an SSH key protected by a password, you can start an [SSH agent container][3] and add your SSH key this way:
 
 ```bash
 docker run -d -v ssh:/ssh --name=ssh-agent whilp/ssh-agent:latest
