@@ -73,9 +73,9 @@ There seems to be no way to instruct [node-gyp][5] to change its `devdir` throug
 
 In order to work around this limitation `dnpm` binds temporarily `~/.node-gyp` to a temporary folder in the container.
 This means that `dnpm` also ensures that the `~/.node-gyp` folder exists.
-This is for now the only modification that `dnpm` might operate on the user account.
+This is for now the only modification that `dnpm` might operate on the host user account.
 
-[node-gyp][5] will probably need additional tools like `python` and other build tools, so for the default image ([alpine-node][4]):
+[node-gyp][5] will probably need additional tools like [python][13] and other build tools, so for the default image ([alpine-node][4]):
 
 ```bash
 dnpm -w path/to/a/node/project "apk add --no-cache build-base python" "npm install"
@@ -89,7 +89,7 @@ dnpm -w path/to/a/node/project -i custom_image_name "npm install"
 
 > An example of an [alpine-node][4] image having all the build tools necessary for using [node-gyp][5] is [erdii/nodejs-alpine-buildtools][6].
 >
-> The alternate image must host a user having administration rights.
+> The alternate image must host a user having administration rights (without using su or sudo) as the entry point of `dnpm` needs to operate bind mounts within the container.
 >
 > Also note that operating with a user other than root almost certainly means that its home directory will not be `/root` and that you will have to use the `-h` option.
 
@@ -105,3 +105,4 @@ dnpm -w path/to/a/node/project -i custom_image_name "npm install"
 [10]: https://docs.docker.com/engine/reference/builder/
 [11]: https://github.com/npm/npm/issues/7995
 [12]: https://docs.npmjs.com/private-modules/docker-and-private-modules
+[13]: https://www.python.org/
