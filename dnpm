@@ -130,6 +130,7 @@ docker run --rm --privileged \
   -v "$(realpath "${ENTRYPOINT}"):/entrypoint" \
   ${SSHVOLUME:+-v "${SSHVOLUME}:/ssh" -e SSH_AUTH_SOCK=/ssh/auth/sock} \
   $(env | grep -i "^npm_config_" | awk -F'=' '{ printf "-e " $1 "=\"" $2 "\" " }') \
+  $(env | grep -i "^bower_" | awk -F'=' '{ printf "-e " $1 "=\"" $2 "\" " }') \
   -e XDG_CONFIG_HOME=/tmp/xdg-config \
   -e XDG_DATA_HOME=/tmp/xdg-data \
   -e bower_storage__packages=/tmp/bower-packages \
