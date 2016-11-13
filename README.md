@@ -2,6 +2,11 @@
 
 A simple bash script to ease [npm][1] usage through [docker][2].
 
+The main point of `dnpm` is that it ensures that your configuration and credentials are available within the build container.
+This is provided by **read-only** mounting the host user home directory and ensuring that part of the user environment is also passed within the container.
+
+The only host volume that is not mounted read-only is the `workdir` which is the current project directory (the one with the `package.json` file) and hence should be protected by a versioning system like [git][8].
+
 ## Installation
 
 ```bash
@@ -89,3 +94,4 @@ dnpm -w path/to/a/node/project -i custom_image_name "npm install"
 [5]: https://github.com/nodejs/node-gyp
 [6]: https://hub.docker.com/r/erdii/nodejs-alpine-buildtools/
 [7]: https://github.com/nodejs/node-gyp/issues/21#issuecomment-180048770
+[8]: https://git-scm.com/
