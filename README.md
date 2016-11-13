@@ -76,6 +76,8 @@ If you think installing all these tools takes too much time, you can use your ow
 dnpm -w path/to/a/node/project -i custom_image_name "npm install"
 ```
 
+> An example of an [alpine-node][4] image having all the build tools necessary for using [node-gyp][5] is [erdii/nodejs-alpine-buildtools][6].
+>
 > The alternate image must host a user having administration rights.
 >
 > Also note that operating with a user other than root almost certainly means that its home directory will not be `/root` and that you will have to use the `-h` option.
@@ -85,3 +87,4 @@ dnpm -w path/to/a/node/project -i custom_image_name "npm install"
 [3]: https://github.com/whilp/ssh-agent
 [4]: https://hub.docker.com/r/mhart/alpine-node/
 [5]: https://github.com/nodejs/node-gyp
+[6]: https://hub.docker.com/r/erdii/nodejs-alpine-buildtools/
