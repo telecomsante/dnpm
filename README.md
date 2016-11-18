@@ -44,11 +44,8 @@ dnpm -w path/to/a/node/project "npm install"
 For more complex situations involving bower and private git repositories, you might want to do things like:
 
 ```bash
-dnpm -w path/to/a/node/project "apk add --no-cache git openssh" "npm install --unsafe-perm"
+dnpm -w path/to/a/node/project "apk add --no-cache git openssh" "npm install"
 ```
-
-> `--unsafe-perm` was passed as an argument to [npm][1] as the default [docker][2] image used by `dnpm` is [mhart/alpine-node][4].
-> The user used by this image is `root` and [npm][1] will refuse to execute external commands (like bower) as `root` by default.
 
 ## Password protected SSH keys
 

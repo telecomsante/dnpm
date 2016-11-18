@@ -138,6 +138,7 @@ docker run --rm --privileged \
   -e bower_storage__links=/tmp/bower-links \
   -e bower_allow_root=true \
   -e npm_config_cache=/tmp/npm-cache \
+  -e npm_config_unsafe_perm=true \
   --workdir /work \
   --entrypoint "/entrypoint" \
   "${IMAGE}" "$@"
