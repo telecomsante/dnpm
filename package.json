@@ -1,6 +1,6 @@
 {
   "name": "docker-npm",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "A simple bash script to ease npm usage through docker",
   "bin": {
     "dnpm": "dnpm",
