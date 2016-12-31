@@ -1,6 +1,6 @@
 {
   "name": "docker-npm",
-  "version": "1.0.0",
+  "version": "0.2.1",
   "description": "A simple bash script to ease npm usage through docker",
   "bin": {
     "dnpm": "dnpm",
@@ -20,6 +20,9 @@
     "dnpm"
   ],
   "author": "gautaz <dev@telecomsante.com>",
+  "contributors": [
+    "Clement-TS <dev@telecomsante.com>"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/telecomsante/dnpm/issues"
