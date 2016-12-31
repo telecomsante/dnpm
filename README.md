@@ -25,6 +25,13 @@ curl -L -O https://raw.githubusercontent.com/telecomsante/dnpm/master/dnpm
 > curl -L -O https://raw.githubusercontent.com/telecomsante/dnpm/TAG/dnpm
 > ```
 
+The *bash* script provided above is intended to work everywhere ([posix](https://en.wikipedia.org/wiki/POSIX) compatibility), but if you like you can get it with `npm`:
+
+```sh
+npm install -g docker-npm
+dnpm --help
+```
+
 ## Help
 
 `dnpm` provides its own help page:
