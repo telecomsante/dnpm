@@ -1,6 +1,6 @@
 # dnpm
 
-A simple bash script to ease [npm][1] usage through [docker][2].
+A simple [bash][0] script to ease [npm][1] usage through [docker][2].
 
 `dnpm` is mainly of use when needing to operate preliminary [npm][1] tasks before building a [docker][2] image. This is in particular necessary when you do not want to pollute the image to build with the building environment (for instance with credentials needed to get dependencies from private repositories).
 An alternative is to directly operate these tasks in the [Dockerfile][10] but this also means ensuring that nothing remains from the building environment which can sometimes be a [cumbersome task][11] even if it is quite well described in [npm documentation][12] (read the article through its end to realize that you will actually need to squash your image).
@@ -15,17 +15,17 @@ This can be easily changed by using the `-i` option.
 
 ## Installation
 
-```bash
+```sh
 curl -L -O https://raw.githubusercontent.com/telecomsante/dnpm/master/dnpm
 ```
 
 > If a tagged revision of the tool is needed:
 >
-> ```bash
+> ```sh
 > curl -L -O https://raw.githubusercontent.com/telecomsante/dnpm/TAG/dnpm
 > ```
 
-The *bash* script provided above is intended to work everywhere ([posix](https://en.wikipedia.org/wiki/POSIX) compatibility), but if you like you can get it with `npm`:
+The shell script provided above is intended to work on any [posix][14] system with [curl][15] installed, but you can also get it with [npm][1]:
 
 ```sh
 npm install -g docker-npm
@@ -36,7 +36,7 @@ dnpm --help
 
 `dnpm` provides its own help page:
 
-```bash
+```sh
 dnpm --help
 ```
 
@@ -44,13 +44,13 @@ dnpm --help
 
 `dnpm` can mainly be used to operate [npm][1] installs:
 
-```bash
+```sh
 dnpm -w path/to/a/node/project "npm install"
 ```
 
 For more complex situations involving bower and private git repositories, you might want to do things like:
 
-```bash
+```sh
 dnpm -w path/to/a/node/project "apk add --no-cache git openssh" "npm install"
 ```
 
@@ -58,14 +58,14 @@ dnpm -w path/to/a/node/project "apk add --no-cache git openssh" "npm install"
 
 If your commands involve using an SSH key protected by a password, you can start an [SSH agent container][3] and add your SSH key this way:
 
-```bash
+```sh
 docker run -d -v ssh:/ssh --name=ssh-agent whilp/ssh-agent:latest
 docker run --rm -v ssh:/ssh -v $HOME:$HOME -it whilp/ssh-agent:latest ssh-add $HOME/.ssh/id_rsa
 ```
 
 Then simply use the `-s` option of `dnpm` to take into account the `ssh-agent`:
 
-```bash
+```sh
 dnpm -w path/to/a/node/project -s ssh "npm install"
 ```
 
@@ -81,13 +81,13 @@ This is for now the only modification that `dnpm` might operate on the host user
 
 [node-gyp][5] will probably need additional tools like [python][13] and other build tools, so for the default image ([alpine-node][4]):
 
-```bash
+```sh
 dnpm -w path/to/a/node/project "apk add --no-cache build-base python" "npm install"
 ```
 
 If you think installing all these tools takes too much time, you can use your own build image but do not forget that it has to be close to your deployment image (same operating system and [Node.js][9] revisions for instance):
 
-```bash
+```sh
 dnpm -w path/to/a/node/project -i custom_image_name "npm install"
 ```
 
@@ -97,6 +97,7 @@ dnpm -w path/to/a/node/project -i custom_image_name "npm install"
 >
 > Also note that operating with a user other than root almost certainly means that its home directory will not be `/root` and that you will have to use the `-h` option.
 
+[0]: https://www.gnu.org/software/bash/
 [1]: https://www.npmjs.com/
 [2]: https://www.docker.com/
 [3]: https://github.com/whilp/ssh-agent
@@ -110,3 +111,5 @@ dnpm -w path/to/a/node/project -i custom_image_name "npm install"
 [11]: https://github.com/npm/npm/issues/7995
 [12]: https://docs.npmjs.com/private-modules/docker-and-private-modules
 [13]: https://www.python.org/
+[14]: https://en.wikipedia.org/wiki/POSIX
+[15]: https://curl.haxx.se/
