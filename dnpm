@@ -100,6 +100,7 @@ mkdir -p "${HOME}/.node-gyp"
 
 cat > "${ENTRYPOINT}" <<EOS
 #!/usr/bin/env sh
+set -e
 
 # ensure the ssh credentials are owned by the current user
 if [ -d "\${HOME}/.ssh" ]; then
